@@ -1,0 +1,54 @@
+﻿<html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Q</title>
+    <script src="./ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+        editor= ace.edit("editor");
+        //editor.getSession().setValue("the new text here");
+        };
+        function copyToHiddenArea()
+        {
+        /*
+            var form = document.getElementById("run");
+            var hiddenField = document.getElementById("code");
+            var txt =  editor.getSession().getValue();
+            hiddenField.setAttribute("value",txt);
+            form.submit();
+        */
+        
+                //alert("ajaxing");
+                $.ajax({
+                url: "./eval",
+                type: "POST",
+                data: {"code": editor.getSession().getValue()},
+                dataType: "json",
+                success: function(j){
+                    var txt = j["output"];
+                    //alert("gottit" + txt);
+                    $("#output").html(txt);
+                    }
+                });
+                //alert("sent");
+            
+        }
+        
+    </script>
+    </head>
+<body>
+    <h2>Simple Q console</h2>
+    Result:<div id="output" style ="border-style: solid; height: 100px; width: 300px">
+    </div>
+    
+    <button onclick="copyToHiddenArea()">Run</button>
+    <div id="editor" style="height: 300px; width: 300px"></div>
+    <input id="code" name="code" type="hidden">
+    <br />
+    
+    
+    <br/>
+    
+</body>
+</html>

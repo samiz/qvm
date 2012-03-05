@@ -1,0 +1,23 @@
+package interpreter;
+
+import parsing.ReaderException;
+import vm.VmException;
+
+public class RunInterpreter
+{
+
+	public static void main(String[] args)
+	{
+		Interpreter interpreter = new Interpreter();
+		try
+		{
+			interpreter.initStdLib();
+			interpreter.RunCode("[method main 0 [[pushv 12] [dispatch print 1] [applyNative][halt]]]");
+		}
+		catch (ReaderException | VmException | InterpreterException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+}
