@@ -1,0 +1,10 @@
+﻿Q is a new experimental (i.e toy) tiny virtual machine written in Java.
+
+Some features:
+
+* Threaded instruction execution.
+* Concurrency (green threads).
+* Multiple dispatch.
+* Web REPL for testing.
+
+Released under the Apache 2.0 license.
