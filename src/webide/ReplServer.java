@@ -4,14 +4,19 @@ import interpreter.Interpreter;
 import interpreter.Utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Properties;
+
+import org.json.simple.JSONObject;
 
 public class ReplServer extends NanoHTTPD
 {
 
 	private String template;
-	private final static String localDir = "c:/workspace/Q/repl";
+	private final static String localDir = "./repl";
 	Interpreter interpreter = new Interpreter();
 	public ReplServer(int port, File wwwroot) throws IOException
 	{
@@ -19,6 +24,7 @@ public class ReplServer extends NanoHTTPD
 		template = Utils.loadFileContents(localDir+"/index.html");
 		interpreter.initStdLib();
 	}
+	@SuppressWarnings("unchecked")
 	public Response serve(String uri, 
 			String method, 
 			Properties header, 
@@ -50,11 +56,19 @@ public class ReplServer extends NanoHTTPD
 			}
 			catch (Exception e)
 			{
-				output += e.getLocalizedMessage();
+				StackTraceElement[] els = e.getStackTrace();
+				output += "<span style=\"color:red;\">" + e.toString() +"</span>";
+				for(StackTraceElement el : els)
+				{
+					output += "<br/>&nbsp;&nbsp;&nbsp;at " + el.toString();
+				}
+				if(output.length() > 450)
+					output = output.substring(0, 450) + "...";
 				e.printStackTrace();
 			}
-			String response = String.format("{\"output\": \"%s\"}", output);
-			return new Response(HTTP_OK, MIME_JSON, response);
+			JSONObject res = new JSONObject();
+			res.put("output", output);
+			return new Response(HTTP_OK, MIME_JSON, res.toJSONString());
 		}
 		else if(uri.startsWith("/repl"))
 		{
