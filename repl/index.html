@@ -7,19 +7,10 @@
     <script type="text/javascript">
         window.onload = function() {
         editor= ace.edit("editor");
-        //editor.getSession().setValue("the new text here");
         };
-        function copyToHiddenArea()
+        function sendCodeForEvaluation()
         {
-        /*
-            var form = document.getElementById("run");
-            var hiddenField = document.getElementById("code");
-            var txt =  editor.getSession().getValue();
-            hiddenField.setAttribute("value",txt);
-            form.submit();
-        */
         
-                //alert("ajaxing");
                 $.ajax({
                 url: "./eval",
                 type: "POST",
@@ -27,12 +18,9 @@
                 dataType: "json",
                 success: function(j){
                     var txt = j["output"];
-                    //alert("gottit" + txt);
                     $("#output").html(txt);
                     }
                 });
-                //alert("sent");
-            
         }
         
     </script>
@@ -41,14 +29,10 @@
     <h2>Simple Q console</h2>
     Result:<div id="output" style ="border-style: solid; height: 100px; width: 300px">
     </div>
-    
-    <button onclick="copyToHiddenArea()">Run</button>
-    <div id="editor" style="height: 300px; width: 300px"></div>
-    <input id="code" name="code" type="hidden">
     <br />
-    
-    
-    <br/>
-    
+    <button onclick="sendCodeForEvaluation()">Run</button>
+    <div id="editor" style="height: 300px; width: 600px"></div>
+    <input id="code" name="code" type="hidden">
+    <br />  
 </body>
 </html>
