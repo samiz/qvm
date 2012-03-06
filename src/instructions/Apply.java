@@ -25,6 +25,7 @@ public class Apply extends Instruction
 		if(tail)
 			vm.currentProcess.callStack().pop();
 		vm.currentProcess.callStack().push(f2);
+		vm._currentFrame = f2;
 		return next;
 	}
 }

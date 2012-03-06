@@ -19,13 +19,13 @@ public class VM
 	Queue<QProcess> timerQueue = new LinkedList<>();
 	Queue<QProcess> inputQueue = new LinkedList<>();
 	public QProcess currentProcess;
+	public Frame _currentFrame;
 	public boolean halted;
 
 	public final Frame currentFrame()
 	{
-		return currentProcess.callStack().peek();
+		return _currentFrame;
 	}
-
 	public QProcess schedule()
 	{
 		if (!timerQueue.isEmpty())
@@ -42,21 +42,20 @@ public class VM
 	{
 		QProcess p = queue.poll();
 		queue.add(p);
+		_currentFrame = p.callStack().peek();
 		return p;
 	}
 
 	public void run() throws VmException
 	{
 		Random r = new Random();
-		Frame f;
 		int rnd;
 		while (!halted)
 		{
-			f = currentFrame();
 			rnd = r.nextInt(30);
 			while (!halted && rnd-- > 0)
 			{
-				f.currentInstruction = f.currentInstruction.run(this);
+				currentFrame().currentInstruction = currentFrame().currentInstruction.run(this);
 			}
 
 			if (!halted)

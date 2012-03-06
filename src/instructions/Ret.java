@@ -11,6 +11,7 @@ public class Ret extends Instruction
 	{
 		Object retVal = vm.currentFrame().operandStack.pop();
 		vm.currentProcess.callStack().pop();
+		vm._currentFrame = vm.currentProcess.callStack().peek();
 		vm.currentFrame().operandStack.push(retVal);
 		return next;
 	}
