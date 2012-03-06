@@ -36,6 +36,28 @@ public class Interpreter
 		{ Integer.class, Integer.class }, new SubtractIntInt());
 		vm.registerMethod("-", new Class[]
 		{ Double.class, Double.class }, new SubtractDoubleDouble());
+		vm.registerMethod("*", new Class[]
+				{ Integer.class, Integer.class }, new MulIntInt());
+		vm.registerMethod("*", new Class[]
+				{ Double.class, Double.class }, new MulDoubleDouble());
+		vm.registerMethod("==", new Class[]
+				{ Object.class, Object.class }, new EqObjectObject());
+		vm.registerMethod("!=", new Class[]
+				{ Object.class, Object.class }, new NotEqObjectObject());
+		vm.registerMethod("<", new Class[]
+				{ Comparable.class, Comparable.class }, new Lt());
+		vm.registerMethod("<=", new Class[]
+				{ Comparable.class, Comparable.class }, new LE());
+		vm.registerMethod(">", new Class[]
+				{ Comparable.class, Comparable.class }, new Gt());
+		vm.registerMethod("<=", new Class[]
+				{ Comparable.class, Comparable.class }, new GE());
+		vm.registerMethod("&&", new Class[]
+				{ Boolean.class, Boolean.class }, new And());
+		vm.registerMethod("||", new Class[]
+				{ Boolean.class, Boolean.class }, new Or());
+		vm.registerMethod("!", new Class[]
+				{ Boolean.class}, new Not());
 		vm.registerMethod("print", new Class[]
 		{ Object.class }, new PrintObject());
 
