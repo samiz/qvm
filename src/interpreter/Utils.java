@@ -8,7 +8,7 @@ import java.io.Reader;
 
 public class Utils
 {
-
+	public static final boolean debug = true;
 	@SuppressWarnings("rawtypes")
 	public static Class[] repeatClass(Class value, int n)
 	{

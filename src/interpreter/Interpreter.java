@@ -12,7 +12,7 @@ import vm.nativemethods.*;
 
 public class Interpreter
 {
-	VM vm = new VM();
+	public VM vm = new VM();
 
 	public void RunCode(String program) throws ReaderException, VmException,
 			InterpreterException
@@ -164,10 +164,6 @@ public class Interpreter
 		{
 			boolean tail = i.matchSymAt(1, "tail");
 			return new Apply(tail).meta(i);
-		}
-		else if (i.matchSymAt(0, "applyNative"))
-		{
-			return new ApplyNative().meta(i);
 		}
 		throw new NonDecodableInstructionException(i);
 	}

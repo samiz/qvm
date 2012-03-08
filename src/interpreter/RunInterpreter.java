@@ -1,8 +1,5 @@
 package interpreter;
 
-import parsing.ReaderException;
-import vm.VmException;
-
 public class RunInterpreter
 {
 
@@ -14,7 +11,7 @@ public class RunInterpreter
 			interpreter.initStdLib();
 			interpreter.RunCode("[method main 0 [[pushv 12] [dispatch print 1] [applyNative][halt]]]");
 		}
-		catch (ReaderException | VmException | InterpreterException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class Frame
 {
-	public final Map<String, Object> environment = new HashMap<>();
+	public final Map<String, Object> environment = new HashMap<String, Object>();
 	public final Method method;
-	public final OperandStack<Object> operandStack = new OperandStack<>();
+	public final OperandStack<Object> operandStack = new OperandStack<Object>();
 	public Instruction currentInstruction;
 	
 	

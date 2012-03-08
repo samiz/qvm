@@ -27,6 +27,8 @@ public class Dispatch extends Instruction
 			types[i] = f.operandStack.peekAt(c++).getClass();
 		}
 		Object method = vm.dispatchn(sym, types);
+		if(method == null)
+			throw new VmException(String.format("No method %s/%s", sym, narg));
 		f.operandStack.push(method);
 		return next;
 	}

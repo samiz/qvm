@@ -1,6 +1,7 @@
 package instructions;
 
 import vm.VM;
+import vm.VmException;
 
 public class PopL extends Instruction
 {
@@ -11,7 +12,7 @@ public class PopL extends Instruction
 		this.sym = sym;
 	}
 	@Override
-	public Instruction run(VM vm)
+	public Instruction run(VM vm) throws VmException
 	{
 		vm.currentFrame().environment.put(sym,
 				vm.currentFrame().operandStack.pop());

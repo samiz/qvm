@@ -10,17 +10,24 @@
         };
         function sendCodeForEvaluation()
         {
-        
-                $.ajax({
-                url: "./eval",
-                type: "POST",
-                data: {"code": editor.getSession().getValue()},
-                dataType: "json",
-                success: function(j){
-                    var txt = j["output"];
-                    $("#output").html(txt);
-                    }
-                });
+			$.ajax({
+			url: "./eval",
+			type: "POST",
+			data: {"code": editor.getSession().getValue()},
+			dataType: "json",
+			success: function(j){
+				var txt = j["output"];
+				$("#output").html(txt);
+				
+				ep = j["errorPos"];
+				if(ep) {
+					editor.gotoLine(ep.line);
+					editor.getSession().getSelection()
+					.selectLineEnd();
+				}
+			}
+				
+			});
         }
         
     </script>

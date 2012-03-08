@@ -1,16 +1,19 @@
 package webide;
 
+import instructions.Instruction;
 import interpreter.Interpreter;
 import interpreter.Utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Properties;
 
 import org.json.simple.JSONObject;
+
+import ast.AST;
+import ast.PosInfo;
+
+import vm.VmException;
 
 public class ReplServer extends NanoHTTPD
 {
@@ -37,12 +40,12 @@ public class ReplServer extends NanoHTTPD
 		}
 		catch (IOException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		if(uri.startsWith("/eval"))
 		{
 			String program = parms.getProperty("code");
+			PosInfo pos = null;
 			if(program == null)
 				program = "";
 			String output = "";
@@ -53,6 +56,18 @@ public class ReplServer extends NanoHTTPD
 				Object val = interpreter.returnValue();
 				if(val != null)
 					output += val.toString();
+			}
+			catch(VmException e)
+			{
+				Instruction inst = null;
+				if(interpreter.vm._currentFrame != null)
+					inst = interpreter.vm._currentFrame.currentInstruction;
+				if(inst != null)
+				{
+					output = "<span style=\\\"color:red;\\\">VM error: " 
+							+ e.getMessage() + "</span>";
+					pos = ((AST) inst.metaData).posInfo();
+				}
 			}
 			catch (Exception e)
 			{
@@ -68,6 +83,14 @@ public class ReplServer extends NanoHTTPD
 			}
 			JSONObject res = new JSONObject();
 			res.put("output", output);
+			if(pos !=null)
+			{
+				JSONObject thePos = new JSONObject();
+				thePos.put("line", pos.Line);
+				thePos.put("col", pos.Col);
+				thePos.put("pos", pos.Pos);
+				res.put("errorPos", thePos);
+			}
 			return new Response(HTTP_OK, MIME_JSON, res.toJSONString());
 		}
 		else if(uri.startsWith("/repl"))
@@ -91,7 +114,12 @@ public class ReplServer extends NanoHTTPD
 		}
 		
 		System.out.println( "Listening on port " + port +". Hit Enter to stop.\n" );
-		try { System.in.read(); } catch( Throwable t ) {};
+		try 
+		{ 
+				System.in.read();
+				System.in.read();
+		}
+		catch( Throwable t ) {};
 	}
 
 

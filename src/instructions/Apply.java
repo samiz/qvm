@@ -1,8 +1,9 @@
 package instructions;
 
 import vm.Frame;
-import vm.Method;
+import vm.IMethod;
 import vm.VM;
+import vm.VmException;
 
 public class Apply extends Instruction
 {
@@ -12,20 +13,10 @@ public class Apply extends Instruction
 		this.tail = tail;
 	}
 	@Override
-	public Instruction run(VM vm)
+	public Instruction run(VM vm) throws VmException
 	{
 		final Frame f1 = vm.currentFrame();
-		final Method m = (Method) f1.operandStack.pop();
-		final Frame f2 = new Frame(m);
-		
-		for(int i=0; i<m.numArgs; i++)
-		{
-			f2.operandStack.push(f1.operandStack.pop());
-		}
-		if(tail)
-			vm.currentProcess.callStack().pop();
-		vm.currentProcess.callStack().push(f2);
-		vm._currentFrame = f2;
-		return next;
+		final IMethod m = (IMethod) f1.operandStack.pop();
+		return m.apply(vm, f1, tail, next);
 	}
 }

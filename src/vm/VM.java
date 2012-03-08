@@ -12,12 +12,12 @@ import java.util.Random;
 
 public class VM
 {
-	public final Map<String, List<DispatchEntry>> dispatchn = new HashMap<>();
-	public final Map<String, Object> constantPool = new HashMap<>();
-	public final Map<String, Object> globalEnvironment = new HashMap<>();
-	Queue<QProcess> runQueue = new LinkedList<>();
-	Queue<QProcess> timerQueue = new LinkedList<>();
-	Queue<QProcess> inputQueue = new LinkedList<>();
+	public final Map<String, List<DispatchEntry>> dispatchn = new HashMap<String, List<DispatchEntry>>();
+	public final Map<String, Object> constantPool = new HashMap<String, Object>();
+	public final Map<String, Object> globalEnvironment = new HashMap<String, Object>();
+	Queue<QProcess> runQueue = new LinkedList<QProcess>();
+	Queue<QProcess> timerQueue = new LinkedList<QProcess>();
+	Queue<QProcess> inputQueue = new LinkedList<QProcess>();
 	public QProcess currentProcess;
 	public Frame _currentFrame;
 	public boolean halted;
