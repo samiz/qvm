@@ -12,7 +12,8 @@ import java.util.Random;
 
 public class VM
 {
-	public final Map<String, List<DispatchEntry>> dispatchn = new HashMap<String, List<DispatchEntry>>();
+	public final Map<String, Map<Integer, List<DispatchEntry>>> dispatchn = 
+			new HashMap<String, Map<Integer,List<DispatchEntry>>>();
 	public final Map<String, Object> constantPool = new HashMap<String, Object>();
 	public final Map<String, Object> globalEnvironment = new HashMap<String, Object>();
 	Queue<QProcess> runQueue = new LinkedList<QProcess>();
@@ -73,9 +74,14 @@ public class VM
 	public void registerMethod(String sym, Class[] types, Object method)
 	{
 		constantPool.put(sym, method);
+		final int nargs = types.length;
 		if (!dispatchn.containsKey(sym))
-			dispatchn.put(sym, new ArrayList<DispatchEntry>());
-		List<DispatchEntry> list = dispatchn.get(sym);
+			dispatchn.put(sym, new HashMap<Integer, List<DispatchEntry>>());
+		
+		
+		if(!dispatchn.get(sym).containsKey(nargs))
+			dispatchn.get(sym).put(nargs, new ArrayList<DispatchEntry>());
+		List<DispatchEntry> list = dispatchn.get(sym).get(nargs);
 
 		DispatchEntry de = new DispatchEntry();
 		de.types = types;
@@ -100,7 +106,13 @@ public class VM
 	@SuppressWarnings("rawtypes")
 	public Object dispatchn(String sym, Class[] types) throws NoMethodException
 	{
-		List<DispatchEntry> entries = dispatchn.get(sym);
+		if(!dispatchn.containsKey(sym))
+			throw new NoMethodException("Method not registered:"+ sym);
+		if(!dispatchn.get(sym).containsKey(types.length))
+			throw new NoMethodException(String.format(
+					"Method '%s' not registered with arity of %s",sym, types.length));
+				
+		List<DispatchEntry> entries = dispatchn.get(sym).get(types.length);
 		for (DispatchEntry de : entries)
 		{
 			if (de.match(types))

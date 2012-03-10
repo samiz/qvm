@@ -60,7 +60,6 @@ public class Interpreter
 				{ Boolean.class}, new Not());
 		vm.registerMethod("print", new Class[]
 		{ Object.class }, new PrintObject());
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -155,6 +154,10 @@ public class Interpreter
 		else if (i.matchSymAt(0, "nop"))
 		{
 			return new Nop().meta(i);
+		}
+		else if (i.matchSymAt(0, "import"))
+		{
+			return new Import(i.at(1).toString()).meta(i);
 		}
 		else if (i.matchSymAt(0, "dispatch"))
 		{

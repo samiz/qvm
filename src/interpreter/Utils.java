@@ -48,4 +48,14 @@ public class Utils
 		return sb.toString();
 	}
 
+	@SuppressWarnings("rawtypes")
+	public static Class[] concat(Class theClass, Class<?>[] types)
+	{
+		Class[] arr = new Class[1+ types.length];
+		arr[0] = theClass;
+		for(int i=0;i<types.length; i++)
+			arr[i+1] = types[i];
+		return arr ;
+	}
+
 }
