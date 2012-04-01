@@ -56,7 +56,6 @@ public class JavaConstructor implements IMethod
 			throw new InternalVmError(String.format("Error calling Java constuctor '%s'; source:%s",
 					constuctor.toString(), e.getMessage()));
 		}
-		
 		return next;
 	}
 

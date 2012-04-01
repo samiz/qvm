@@ -1,11 +1,19 @@
 package interpreter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.objectweb.asm.Type;
+
 import ast.AST;
 import ast.VectorAst;
 import instructions.*;
 import parsing.Reader;
 import parsing.ReaderException;
 import vm.Method;
+import vm.NoMethodException;
 import vm.VM;
 import vm.VmException;
 import vm.nativemethods.*;
@@ -13,6 +21,7 @@ import vm.nativemethods.*;
 public class Interpreter
 {
 	public VM vm = new VM();
+	final private Map<String, Macro> macros = new HashMap<String, Macro>();
 
 	public void RunCode(String program) throws ReaderException, VmException,
 			InterpreterException
@@ -62,21 +71,89 @@ public class Interpreter
 		{ Object.class }, new PrintObject());
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void decodeInstructions(VectorAst treeVector, VM avm)
-			throws NonDecodableInstructionException
+			throws NonDecodableInstructionException, VmException
 	{
 		for (AST tree : treeVector.value)
 		{
-			if (tree.matchSymAt(0, "method"))
+			decodeDirective(tree, avm);
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void decodeDirective(AST tree, VM avm)
+			throws NonDecodableInstructionException, VmException,
+			NoMethodException
+	{
+		if (tree.matchSymAt(0, "method"))
+		{
+			String mname = tree.symbolAt(1);
+			Method m = decodeMethod(mname, tree.intAt(2), tree.VectorAt(3),
+					avm);
+			Class[] types = Utils.repeatClass(Object.class, m.numArgs);
+			vm.registerMethod(mname, types, m);
+		}
+		else if(tree.matchSymAt(0, "macro"))
+		{
+			String mname = tree.symbolAt(1);
+			Method m = decodeMethod(mname, tree.intAt(2), tree.VectorAt(3),
+					avm);
+			Class[] types = Utils.repeatClass(Object.class, m.numArgs);
+			vm.registerMethod(mname, types, m);
+			this.registerMacro(mname, types);
+		}
+		else if(tree.matchSymAt(0, "class"))
+		{
+			String cname = tree.symbolAt(1);
+			
+			String parentName = tree.stringAt(2);
+			Class parentClass;
+			try
 			{
-				String mname = tree.symbolAt(1);
-				Method m = decodeMethod(mname, tree.intAt(2), tree.VectorAt(3),
-						avm);
-				Class[] types = Utils.repeatClass(Object.class, m.numArgs);
-				vm.registerMethod(mname, types, m);
+				parentClass = Class.forName(parentName);
+			}
+			catch (ClassNotFoundException e)
+			{
+				throw new VmException(String.format(
+						"Cannot find parent class '%s' while defining class '%s'",
+						parentName, cname));
+			}
+			Type typ = Type.getType(parentClass);
+			parentName = typ.getInternalName();
+			List<String> fieldNames = new ArrayList<String>();
+			for(int i=3; i<tree.countElems();i++)
+			{
+				fieldNames.add(tree.symbolAt(i));
+			}
+			Class cls = Utils.createNewClass(cname, parentName, fieldNames);
+			if(cls != null)
+				avm.registerJavaClass(cls);
+		}
+		else
+		{
+			String head = tree.symbolAt(0);
+			if(macros.containsKey(head))
+			{
+				Macro m = macros.get(head);
+				VectorAst args = tree.tail();
+				VectorAst expansion = expandMacro((Method) avm.dispatchn(head, m.argTypes), args);
+				System.out.println(String.format("Expasnsion of macro: %s is %s", head, expansion.toString()));
+				decodeDirective(expansion, avm);
 			}
 		}
+	}
+
+	private VectorAst expandMacro(Method method, VectorAst args) throws VmException
+	{
+		VectorAst result = (VectorAst) vm.createSoleProcess(method, args);
+		
+		return result;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void registerMacro(String mname, Class[] types)
+	{
+		this.macros.put(mname, new Macro(mname, types));
 	}
 
 	private Method decodeMethod(String name, int arity, VectorAst instructions,
@@ -135,6 +212,11 @@ public class Interpreter
 				val = arg.eval();
 			return new PushV(val).meta(i);
 		}
+		else if (i.matchSymAt(0, "pushq"))
+		{
+			AST arg = i.at(1);
+			return new PushQuote(arg).meta(i);
+		}
 		else if (i.matchSymAt(0, "halt"))
 		{
 			return new Halt().meta(i);
@@ -171,7 +253,7 @@ public class Interpreter
 		throw new NonDecodableInstructionException(i);
 	}
 
-	public Object returnValue()
+	public Object returnValue() throws InternalVmError
 	{
 		return vm.topMostValue();
 	}

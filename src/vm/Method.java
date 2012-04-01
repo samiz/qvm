@@ -25,6 +25,12 @@ public class Method implements IMethod
 			lastInstruction.next = i;
 		lastInstruction = i;
 	}
+	// add(a, b, c)
+	// push a
+	// push b
+	// push c
+	// dispatch add 3
+	// apply
 	@Override
 	public Instruction apply(VM vm, Frame f1, boolean tail, Instruction next) throws InternalVmError
 	{

@@ -4,7 +4,7 @@ public class DispatchEntry
 {
 	@SuppressWarnings("rawtypes")
 	public Class[] types;
-	public Object method;
+	public IMethod method;
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean match(Class[] givenTypes)
 	{

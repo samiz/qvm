@@ -82,6 +82,17 @@ public class VectorAst extends ASTImpl
 		return ((NumLiteral) at).value;
 	}
 	@Override
+	public String stringAt(int i)
+	{
+		// TODO match out of bound errors need a different message
+		if(i>=this.value.size())
+			throw new MatchError(this, i);
+		Object at = this.value.get(i);
+		if(!(at instanceof StrLiteral))
+			throw new MatchError(this, i);
+		return ((StrLiteral) at).value;
+	}
+	@Override
 	public VectorAst VectorAt(int i)
 	{
 		if(i>=this.value.size())
@@ -101,5 +112,17 @@ public class VectorAst extends ASTImpl
 	{
 		return value.size();
 	}
-
+	@Override
+	public VectorAst tail()
+	{
+		VectorAst ret = new VectorAst(_posInfo);
+		if(countElems()>1)
+			ret._posInfo = value.get(1).posInfo();
+		
+		for(int i=1; i<this.countElems(); i++)
+		{
+			ret.value.add(value.get(i));
+		}
+		return ret;
+	}
 }

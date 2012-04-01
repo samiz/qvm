@@ -17,6 +17,8 @@ public interface AST
 	VectorAst VectorAt(int i);
 	AST at(int i);
 	int countElems();
+	VectorAst tail();
+	String stringAt(int i);
 	
 	
 	

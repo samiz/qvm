@@ -10,8 +10,10 @@ public class OperandStack<T>
 {
 	final List<T> _data = new ArrayList<T>();
 
-	public final T peek()
+	public final T peek() throws InternalVmError
 	{
+		if(Utils.debug && _data.isEmpty())
+			throw new InternalVmError("Peeking atempty operand stack");
 		return _data.get(_data.size()-1);
 	}
 	public final void push(T object)

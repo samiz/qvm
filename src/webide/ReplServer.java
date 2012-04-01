@@ -61,13 +61,14 @@ public class ReplServer extends NanoHTTPD
 			{
 				Instruction inst = null;
 				if(interpreter.vm._currentFrame != null)
-					inst = interpreter.vm._currentFrame.currentInstruction;
-				if(inst != null)
 				{
-					output = "<span style=\\\"color:red;\\\">VM error: " 
-							+ e.getMessage() + "</span>";
-					pos = ((AST) inst.metaData).posInfo();
+					inst = interpreter.vm._currentFrame.currentInstruction;
 				}
+				
+				output = "<span style=\\\"color:red;\\\">VM error: " 
+						+ e.getMessage() + "</span>";
+				if(inst != null)
+					pos = ((AST) inst.metaData).posInfo();
 			}
 			catch (Exception e)
 			{

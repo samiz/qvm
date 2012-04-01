@@ -1,7 +1,10 @@
 package vm;
 
+import instructions.InternalVmError;
 import interpreter.Utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+
+import ast.VectorAst;
 
 public class VM
 {
@@ -65,13 +70,13 @@ public class VM
 		}
 	}
 
-	public Object topMostValue()
+	public Object topMostValue() throws InternalVmError
 	{
 		return currentFrame().operandStack.peek();
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void registerMethod(String sym, Class[] types, Object method)
+	public void registerMethod(String sym, Class[] types, IMethod method)
 	{
 		constantPool.put(sym, method);
 		final int nargs = types.length;
@@ -102,9 +107,28 @@ public class VM
 			list.add(de);
 
 	}
+	@SuppressWarnings("rawtypes")
+	public void registerJavaClass(Class theClass)
+	{
+		for(java.lang.reflect.Method m : theClass.getMethods())
+		{
+			Class[] types = Utils.concat(theClass, m.getParameterTypes());
+			this.registerMethod(m.getName(), types, new JavaMethod(m, m.getParameterTypes().length+1));
+		}
+		for(Constructor c : theClass.getConstructors())
+		{
+			Class[] types = c.getParameterTypes();
+			this.registerMethod(theClass.getSimpleName(), types, new JavaConstructor(c, c.getParameterTypes().length));
+		}
+		for(Field f : theClass.getFields())
+		{
+			this.registerMethod(f.getName(), new Class[]{theClass}, new JavaFieldGetter(f));
+			this.registerMethod(f.getName(), new Class[]{ theClass, f.getType() }, new JavaFieldSetter(f));
+		}
+	}
 
 	@SuppressWarnings("rawtypes")
-	public Object dispatchn(String sym, Class[] types) throws NoMethodException
+	public IMethod dispatchn(String sym, Class[] types) throws NoMethodException
 	{
 		if(!dispatchn.containsKey(sym))
 			throw new NoMethodException("Method not registered:"+ sym);
@@ -122,13 +146,33 @@ public class VM
 				+ Utils.toString(types));
 	}
 
-	public void pushMainMethod()
+	public void pushMainMethod() throws VmException
 	{
 		QProcess proc = new QProcess();
+		if(!constantPool.containsKey("main"))
+			throw new VmException("No main method");
 		proc.callStack().push(
 				new Frame((Method) constantPool.get("main")));
 		runQueue.clear();
 		runQueue.add(proc);
 		currentProcess = schedule();
+	}
+	
+	public Object createSoleProcess(Method method, VectorAst args) throws VmException
+	{
+		QProcess proc = new QProcess();
+		proc.callStack().push(
+				new Frame(method));
+		if(args !=null)
+		{
+			for(Object arg: args.value)
+				proc._callStack.peek().operandStack.push(arg);
+		}
+		runQueue.clear();
+		runQueue.add(proc);
+		currentProcess = schedule();
+		halted = false;
+		run();
+		return currentFrame().operandStack.peek();
 	}
 }

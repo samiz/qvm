@@ -77,4 +77,16 @@ public class NumLiteral extends ASTImpl
 		throw new MatchError(this, "a vector");
 	}
 
+	@Override
+	public VectorAst tail()
+	{
+		throw new MatchError(this, "a vector");
+	}
+
+	@Override
+	public String stringAt(int i)
+	{
+		throw new MatchError(this, "a vector");
+	}
+
 }
